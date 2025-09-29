@@ -1,111 +1,157 @@
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
-#include <stdio.h> // Для sprintf
 
-// Размер буфера, как указано в задании (4 КБ)
-#define BUFFER_SIZE 4096
+// Объявление функции, как требуется в задаче
+char *relativize_path(const char *path1, const char *path2);
 
-int copy_file(const char *srcpath, const char *dstpath) {
-    struct stat src_st, dst_st;
-    char *final_dst_path = NULL;
-    int src_fd = -1;
-    int dst_fd = -1;
-    int result = -1; // По умолчанию - ошибка
-
-    // 1. Проверка исходного файла
-    if (stat(srcpath, &src_st) == -1) {
-        // Исходный файл не существует или недоступен
-        return -1;
+char *relativize_path(const char *path1, const char *path2) {
+    // 1. Получаем директорию первого пути (dir1)
+    char *dir1_dup = strdup(path1);
+    if (!dir1_dup) {
+        return NULL; // Ошибка выделения памяти
     }
-
-    if (!S_ISREG(src_st.st_mode)) {
-        // Исходный путь не является обычным файлом (например, это каталог)
-        return -1;
-    }
-
-    // 2. Определение конечного пути назначения
-    int dst_exists = (stat(dstpath, &dst_st) == 0);
-
-    if (dst_exists && S_ISDIR(dst_st.st_mode)) {
-        // Случай А: dstpath - это каталог. Формируем новый путь.
-        const char *src_basename = strrchr(srcpath, '/');
-        if (src_basename == NULL) {
-            src_basename = srcpath; // В пути нет '/', имя файла - это весь путь
+    
+    char *last_slash = strrchr(dir1_dup, '/');
+    if (last_slash) {
+        if (last_slash == dir1_dup) { 
+            // Это корень, например, путь "/a". Директория - "/"
+            *(last_slash + 1) = '\0';
         } else {
-            src_basename++; // Пропускаем сам символ '/'
-        }
-
-        // Выделяем память под новый путь: "dstpath/basename\0"
-        final_dst_path = malloc(strlen(dstpath) + strlen(src_basename) + 2);
-        if (final_dst_path == NULL) {
-            return -1; // Ошибка выделения памяти
-        }
-        sprintf(final_dst_path, "%s/%s", dstpath, src_basename);
-    } else {
-        // Случай Б: dstpath - не каталог или не существует. Используем как есть.
-        final_dst_path = strdup(dstpath);
-        if (final_dst_path == NULL) {
-            return -1; // Ошибка выделения памяти
+            // Обычный случай, например, "/a/b". Директория - "/a"
+            *last_slash = '\0';
         }
     }
+    // Если path1 был "/", dir1_dup уже является "/" и ничего менять не надо.
+    const char *dir1 = dir1_dup;
 
-    // 3. Проверка на самокопирование
-    // Перепроверяем stat для конечного пути, так как он мог измениться
-    if (stat(final_dst_path, &dst_st) == 0) {
-        if (src_st.st_ino == dst_st.st_ino && src_st.st_dev == dst_st.st_dev) {
-            // Это один и тот же файл. Успешный выход без действий.
-            result = 0;
-            goto cleanup;
+    // 2. Находим общий базовый каталог, сравнивая компоненты
+    const char *p1 = dir1;
+    const char *p2 = path2;
+    const char *common_p1 = dir1;
+    const char *common_p2 = path2;
+
+    while (1) {
+        // Указатели на следующий '/' в каждом из путей
+        const char *next_slash1 = strchr(p1 + 1, '/');
+        const char *next_slash2 = strchr(p2 + 1, '/');
+
+        // Определяем длину текущего компонента пути
+        size_t len1 = next_slash1 ? (size_t)(next_slash1 - p1) : strlen(p1);
+        size_t len2 = next_slash2 ? (size_t)(next_slash2 - p2) : strlen(p2);
+
+        // Сравниваем компоненты
+        if (len1 != len2 || strncmp(p1, p2, len1) != 0) {
+            break; // Нашли первое различие, останавливаемся
+        }
+
+        // Компоненты совпали, обновляем указатели на конец общего пути
+        common_p1 = p1 + len1;
+        common_p2 = p2 + len2;
+
+        // Если хотя бы один из путей закончился, поиск общего предка завершен
+        if (!next_slash1 || !next_slash2) {
+            break;
+        }
+
+        // Переходим к следующим компонентам
+        p1 = next_slash1;
+        p2 = next_slash2;
+    }
+
+    // 3. Считаем, сколько раз нужно подняться вверх ("../")
+    int up_count = 0;
+    const char *rem_dir1 = common_p1;
+    // Пропускаем возможный `/` в начале остатка
+    if (*rem_dir1 == '/') {
+        rem_dir1++;
+    }
+    if (*rem_dir1) { // Если в остатке dir1 есть хоть что-то
+        up_count = 1;
+        const char *p = rem_dir1;
+        while ((p = strchr(p, '/'))) {
+            p++;
+            if (*p) { // Убедимся, что это не просто конечный слэш
+                up_count++;
+            }
         }
     }
-
-    // 4. Открытие файлов
-    src_fd = open(srcpath, O_RDONLY);
-    if (src_fd == -1) {
-        goto cleanup;
+    
+    // 4. Определяем путь "вниз"
+    const char *down_path = common_p2;
+    if (*down_path == '/') {
+        down_path++;
     }
 
-    // Открываем конечный файл с правами исходного
-    dst_fd = open(final_dst_path, O_WRONLY | O_CREAT | O_TRUNC, src_st.st_mode);
-    if (dst_fd == -1) {
-        goto cleanup;
+    // 5. Особый случай: dir1 и path2 - это один и тот же каталог
+    if (up_count == 0 && *down_path == '\0') {
+        free(dir1_dup);
+        return strdup(".");
     }
 
-    // 5. Цикл копирования
-    char buffer[BUFFER_SIZE];
-    ssize_t bytes_read;
-    while ((bytes_read = read(src_fd, buffer, BUFFER_SIZE)) > 0) {
-        ssize_t bytes_written = write(dst_fd, buffer, bytes_read);
-        if (bytes_written != bytes_read) {
-            // Ошибка записи (например, закончилось место на диске)
-            goto cleanup;
-        }
+    // 6. Вычисляем итоговую длину и выделяем память
+    size_t up_len = up_count * 3; // Для каждого "../"
+    size_t down_len = strlen(down_path);
+    
+    size_t total_len = up_len + down_len + 1; // +1 для '\0'
+    char *result = malloc(total_len);
+    if (!result) {
+        free(dir1_dup);
+        return NULL;
     }
 
-    if (bytes_read == -1) {
-        // Ошибка чтения
-        goto cleanup;
+    // 7. Собираем итоговую строку
+    char *current = result;
+    for (int i = 0; i < up_count; ++i) {
+        memcpy(current, "../", 3);
+        current += 3;
     }
 
-    // Если мы дошли сюда, копирование прошло успешно
-    result = 0;
+    if (down_len > 0) {
+        memcpy(current, down_path, down_len);
+        current += down_len;
+    }
+    *current = '\0';
 
-cleanup:
-    // 6. Освобождение ресурсов
-    if (src_fd != -1) {
-        close(src_fd);
-    }
-    if (dst_fd != -1) {
-        close(dst_fd);
-    }
-    if (final_dst_path != NULL) {
-        free(final_dst_path);
-    }
-
+    free(dir1_dup); // Освобождаем память, выделенную strdup
     return result;
 }
+
+/*
+// Пример использования функции main для проверки
+#include <stdio.h>
+
+int main() {
+    // Пример из задачи
+    char* r1 = relativize_path("/a/b/c/d", "/a/e/f");
+    printf("Test 1: /a/b/c/d -> /a/e/f  ==> %s\n", r1); // Ожидаем ../../e/f
+    free(r1);
+
+    // Случай, когда path2 является потомком
+    char* r2 = relativize_path("/a/b", "/a/b/c/d");
+    printf("Test 2: /a/b -> /a/b/c/d    ==> %s\n", r2); // Ожидаем c/d
+    free(r2);
+
+    // Случай, когда dir1 является потомком
+    char* r3 = relativize_path("/a/b/c/d", "/a/b");
+    printf("Test 3: /a/b/c/d -> /a/b      ==> %s\n", r3); // Ожидаем ../..
+    free(r3);
+
+    // Случай идентичных путей
+    char* r4 = relativize_path("/a/b/c", "/a/b/c");
+     printf("Test 4: /a/b/c -> /a/b/c      ==> %s\n", r4); // Ожидаем .
+    free(r4);
+    
+    // Пути расходятся от корня
+    char* r5 = relativize_path("/a", "/b");
+    printf("Test 5: /a -> /b              ==> %s\n", r5); // Ожидаем ../b
+    free(r5);
+    
+    // Работа с корнем
+    char* r6 = relativize_path("/", "/a/b");
+    printf("Test 6: / -> /a/b             ==> %s\n", r6); // Ожидаем a/b
+    free(r6);
+
+    return 0;
+}
+*/
 
