@@ -1,0 +1,141 @@
+ANSWERS
+***Answer 29:
+[s02230150@study-00 newtask3]$ gcc -Wall -Werror -std=gnu11 -O2 aplusb.c -o aplusb
+aplusb.c:1:6: error: return type of ‘main’ is not ‘int’ [-Werror=main]
+    1 | void main()
+      |      ^~~~
+aplusb.c: In function ‘main’:
+aplusb.c:4:1: error: implicit declaration of function ‘scanf’ [-Wimplicit-function-declaration]
+    4 | scanf("%d%d", a, &b);
+      | ^~~~~
+aplusb.c:1:1: note: include ‘<stdio.h>’ or provide a declaration of ‘scanf’
+  +++ |+#include <stdio.h>
+    1 | void main()
+aplusb.c:4:1: error: incompatible implicit declaration of built-in function ‘scanf’ [-Werror=builtin-declaration-mismatch]
+    4 | scanf("%d%d", a, &b);
+      | ^~~~~
+aplusb.c:4:1: note: include ‘<stdio.h>’ or provide a declaration of ‘scanf’
+aplusb.c:4:9: error: format ‘%d’ expects argument of type ‘int *’, but argument 2 has type ‘int’ [-Werror=format=]
+    4 | scanf("%d%d", a, &b);
+      |        ~^     ~
+      |         |     |
+      |         int * int
+aplusb.c:5:3: error: statement with no effect [-Werror=unused-value]
+    5 | c == a + b;
+      | ~~^~~~~~~~
+aplusb.c:6:1: error: implicit declaration of function ‘printf’ [-Wimplicit-function-declaration]
+    6 | printf("%d\n", c);
+      | ^~~~~~
+aplusb.c:6:1: note: include ‘<stdio.h>’ or provide a declaration of ‘printf’
+aplusb.c:6:1: error: incompatible implicit declaration of built-in function ‘printf’ [-Werror=builtin-declaration-mismatch]
+aplusb.c:6:1: note: include ‘<stdio.h>’ or provide a declaration of ‘printf’
+cc1: all warnings being treated as errors
+***Answer 30:
+-rwxr-xr-x 1 s02230150 s02230150 12584 Sep 14 13:31 aplusb
+***Answer 31:
+166607831
+***Answer 32:
+./aplusb < 001.dat > 001.res
+***Answer 33:
+166623363
+***Answer 34:
+0m0.001s
+***Answer 35:
+350000000
+***Answer 36:
+Выведет все процессы в имени которых присутствует sh
+***Answer 37:
+ulimit -c выводит максимально допустимый размер core-файла
+ulimit -c 0 устанавливает лимит на размер core-файла в 0
+***Answer 38:
+[s02230150@study-00 newtask3]$ readelf -S segfal
+There are 36 section headers, starting at offset 0x2b18:
+
+Section Headers:
+  [Nr] Name              Type             Address           Offset
+       Size              EntSize          Flags  Link  Info  Align
+  [ 0]                   NULL             0000000000000000  00000000
+       0000000000000000  0000000000000000           0     0     0
+  [ 1] .note.gnu.bu[...] NOTE             0000000000400318  00000318
+       0000000000000024  0000000000000000   A       0     0     4
+  [ 2] .init             PROGBITS         000000000040033c  0000033c
+       000000000000001b  0000000000000000  AX       0     0     4
+  [ 3] .text             PROGBITS         0000000000400360  00000360
+       0000000000000103  0000000000000000  AX       0     0     16
+  [ 4] .fini             PROGBITS         0000000000400464  00000464
+       000000000000000d  0000000000000000  AX       0     0     4
+  [ 5] .interp           PROGBITS         0000000000401000  00001000
+       000000000000001c  0000000000000000   A       0     0     1
+  [ 6] .gnu.hash         GNU_HASH         0000000000401020  00001020
+       000000000000001c  0000000000000000   A       7     0     8
+  [ 7] .dynsym           DYNSYM           0000000000401040  00001040
+       0000000000000048  0000000000000018   A       8     1     8
+  [ 8] .dynstr           STRTAB           0000000000401088  00001088
+       0000000000000037  0000000000000000   A       0     0     1
+  [ 9] .gnu.version      VERSYM           00000000004010c0  000010c0
+       0000000000000006  0000000000000002   A       7     0     2
+  [10] .gnu.version_r    VERNEED          00000000004010c8  000010c8
+       0000000000000020  0000000000000000   A       8     1     8
+  [11] .rela.dyn         RELA             00000000004010e8  000010e8
+       0000000000000030  0000000000000018   A       7     0     8
+  [12] .rodata           PROGBITS         0000000000401118  00001118
+       0000000000000010  0000000000000000   A       0     0     8
+  [13] .eh_frame_hdr     PROGBITS         0000000000401128  00001128
+       0000000000000024  0000000000000000   A       0     0     4
+  [14] .eh_frame         PROGBITS         0000000000401150  00001150
+       0000000000000064  0000000000000000   A       0     0     8
+  [15] .note.gnu.pr[...] NOTE             00000000004011b8  000011b8
+       0000000000000040  0000000000000000   A       0     0     8
+  [16] .note.ABI-tag     NOTE             00000000004011f8  000011f8
+       0000000000000020  0000000000000000   A       0     0     4
+  [17] .init_array       INIT_ARRAY       0000000000402e38  00001e38
+       0000000000000008  0000000000000008  WA       0     0     8
+  [18] .fini_array       FINI_ARRAY       0000000000402e40  00001e40
+       0000000000000008  0000000000000008  WA       0     0     8
+  [19] .dynamic          DYNAMIC          0000000000402e48  00001e48
+       0000000000000190  0000000000000010  WA       8     0     8
+  [20] .got              PROGBITS         0000000000402fd8  00001fd8
+       0000000000000010  0000000000000008  WA       0     0     8
+  [21] .got.plt          PROGBITS         0000000000402fe8  00001fe8
+       0000000000000018  0000000000000008  WA       0     0     8
+  [22] .data             PROGBITS         0000000000403000  00002000
+       0000000000000004  0000000000000000  WA       0     0     1
+  [23] .bss              NOBITS           0000000000403004  00002004
+       0000000000000004  0000000000000000  WA       0     0     1
+  [24] .comment          PROGBITS         0000000000000000  00002004
+       000000000000002e  0000000000000001  MS       0     0     1
+  [25] .annobin.notes    PROGBITS         0000000000000000  00002032
+       000000000000014f  0000000000000001  MS       0     0     1
+  [26] .gnu.build.a[...] NOTE             0000000000405008  00002184
+       0000000000000144  0000000000000000           0     0     4
+  [27] .debug_aranges    PROGBITS         0000000000000000  000022c8
+       0000000000000030  0000000000000000           0     0     1
+  [28] .debug_info       PROGBITS         0000000000000000  000022f8
+       000000000000008d  0000000000000000           0     0     1
+  [29] .debug_abbrev     PROGBITS         0000000000000000  00002385
+       0000000000000067  0000000000000000           0     0     1
+  [30] .debug_line       PROGBITS         0000000000000000  000023ec
+       0000000000000055  0000000000000000           0     0     1
+  [31] .debug_str        PROGBITS         0000000000000000  00002441
+       000000000000007c  0000000000000001  MS       0     0     1
+  [32] .debug_line_str   PROGBITS         0000000000000000  000024bd
+       0000000000000022  0000000000000001  MS       0     0     1
+  [33] .symtab           SYMTAB           0000000000000000  000024e0
+       0000000000000318  0000000000000018          34    18     8
+  [34] .strtab           STRTAB           0000000000000000  000027f8
+       000000000000019a  0000000000000000           0     0     1
+  [35] .shstrtab         STRTAB           0000000000000000  00002992
+       0000000000000181  0000000000000000           0     0     1
+Key to Flags:
+  W (write), A (alloc), X (execute), M (merge), S (strings), I (info),
+  L (link order), O (extra OS processing required), G (group), T (TLS),
+  C (compressed), x (unknown), o (OS specific), E (exclude),
+  D (mbind), l (large), p (processor specific)
+[s02230150@study-00 newtask3]$
+***Answer 39:
+ls -l /etc/*.conf | sort -k 5 -n | head -n 5
+
+***Answer 40:
+grep -v -i "[aeiou]" /usr/share/dict/words | wc -l
+
+SHA2-256(stdin)= 3044022036bf75cf0bac0e103f3547e8e5de01407006778811642676c6f0ec930babddb80220581680c6d153d2081e20d586980c10d8fd5246a4fdd43c21c45851992f0c71ff

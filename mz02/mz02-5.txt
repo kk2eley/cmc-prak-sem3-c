@@ -1,0 +1,36 @@
+ANSWERS
+***Answer 17:
+/home/s02230150
+***Answer 18:
+/usr/include
+***Answer 19:
+drwxr-x--- 2 s02230150 s02230150 6 Sep 14 10:46 newtask1/
+Время последней модификации 6 Sep 14 10:46
+Права доступа 750
+***Answer 20:
+размер файла 38 байт
+1 /home/s02230150 2 /home/s02230150 3 
+***Answer 21:
+/etc/cloud
+***Answer 22:
+total 20
+-rw-r--r-- 1 s02230150 s02230150   724 Sep 14 13:04 hosts
+-rw-r--r-- 1 s02230150 s02230150 15532 Sep 14 13:04 passwd
+***Answer 23:
+total 20
+-rw-r--r-- 1 s02230150 s02230150   724 Sep 14 13:04 hosts2
+-rw-r--r-- 1 s02230150 s02230150 15532 Sep 14 13:04 passwd
+***Answer 24:
+UID=1170
+USER=s02230150
+***Answer 25:
+/bin/bash
+***Answer 26:
+”/etc:/home/s02230150/.local/bin:/home/s02230150/bin:/usr/local/bin:/usr/bin:/usr/sbin:/home/s02230150/.dotnet/tools:/usr/include”
+***Answer 27:
+/usr/bin/who
+***Answer 28:
+ls /123 - 2
+ls home - 0
+
+SHA2-256(stdin)= 3045022100c7b9cf5d2ab11d8f348286ce1dfbe9f7786ff03079f3d278755e949624ba25290220732d38530134e61d37f74da059d3a19191e5cc3b5dcb034d11048747ca059216
